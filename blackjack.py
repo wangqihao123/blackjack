@@ -26,6 +26,10 @@ RANKS = ('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K')
 VALUES = {'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6,
           '7': 7, '8': 8, '9': 9, 'T': 10, 'J': 10, 'Q': 10, 'K': 10}
 
+# define draw position  for player hand and dealer hand
+pos_draw_player_card = [50, 400]
+pos_draw_dealer_card = [50, 200]
+
 
 # define card class
 class Card:
@@ -120,20 +124,17 @@ class Deck:
         pass  # return a string representing the deck
 
 
-DEALER_HAND = Hand()
-PLAYER_HAND = Hand()
-DECK = Deck()
-
 # define event handlers for buttons
 
 
 def deal():
     global outcome, in_play
     global DEALER_HAND, PLAYER_HAND, DECK
-    outcome = ""
+    outcome = "hit or stand ?"
     score = 0
-    DEALER_HAND = Hand
-    PLAYER_HAND = Hand
+    DEALER_HAND = Hand()
+    PLAYER_HAND = Hand()
+    DECK = Deck()
     DECK.shuffle()
     PLAYER_HAND.add_card(DECK.deal_card())
     DEALER_HAND.add_card(DECK.deal_card())
@@ -145,35 +146,41 @@ def deal():
 
 
 def hit():
-    global outcome, in_play
+    global outcome, in_play, score
     global DEALER_HAND, PLAYER_HAND, DECK
-    if PLAYER_HAND.get_value() <= 21:
-        PLAYER_HAND.add_card(DECK.deal_card())
-    if PLAYER_HAND.get_value() >= 21:
-        outcome = "You have busted"
-
+    if in_play:
+        if PLAYER_HAND.get_value() <= 21:
+            PLAYER_HAND.add_card(DECK.deal_card())
+        if PLAYER_HAND.get_value() >= 21:
+            outcome = "You have busted"
+            score -= 1
+            in_play = False
     # if the hand is in play, hit the player
 
     # if busted, assign a message to outcome, update in_play and score
 
 
 def stand():
-    global outcome, in_play
+
+    global outcome, in_play, score
     global DEALER_HAND, PLAYER_HAND, DECK
+    if in_play:
+        while DEALER_HAND.get_value() < 17 and PLAYER_HAND.get_value() >= DEALER_HAND.get_value():
+            DEALER_HAND.add_card(DECK.deal_card())
 
-    while DEALER_HAND.get_value() < 17:
-        DEALER_HAND.add_card() = DECK.deal_card()
-
-    if DEALER_HAND.get_value() > 21:
-        outcome = "dealer has busted"
-    else:
-        if PLAYER_HAND.get_value() > DEALER_HAND.get_value():
-            outcome = "you win"
+        if DEALER_HAND.get_value() > 21:
+            outcome = "dealer has busted, you win"
+            score += 1
+            in_play = False
         else:
-            outcome = "dealer win"
-
-    pass  # replace with your code below
-
+            if PLAYER_HAND.get_value() > DEALER_HAND.get_value():
+                outcome = "you win"
+                score += 1
+                in_play = False
+            else:
+                outcome = "dealer win"
+                score -= 1
+                in_play = False
     # if hand is in play, repeatedly hit dealer until his hand has value 17 or more
 
     # assign a message to outcome, update in_play and score
@@ -183,8 +190,39 @@ def stand():
 
 def draw(canvas):
     # test to make sure that card.draw works, replace with your code below
-    card = Card("S", "A")
-    card.draw(canvas, [300, 300])
+    # draw zone promp
+    global pos_draw_player_card, pos_draw_dealer_card
+    canvas.draw_text(str(score), (500, 100), 50, "white")
+    canvas.draw_text("Blackjack!!", [pos_draw_dealer_card[0],
+                                     pos_draw_dealer_card[1] - 100], 50, "yellow")
+    canvas.draw_text("Dealer's hand", [pos_draw_dealer_card[0],
+                                       pos_draw_dealer_card[1] - 20], 30, "blue")
+    canvas.draw_text("Plyer's hand", [pos_draw_player_card[0],
+                                      pos_draw_player_card[1] - 20], 30, "blue")
+    # draw outcome to the canvs
+    canvas.draw_text(outcome, [pos_draw_player_card[0] + CARD_SIZE[0] * 3,
+                               pos_draw_player_card[1] - 20], 30, "white")
+
+    # draw player_card
+    pos1 = list(pos_draw_player_card)
+    for player_card in PLAYER_HAND.card_list:
+        player_card.draw(canvas, pos1)
+        pos1[0] += CARD_SIZE[0] + 20
+
+    # draw back of card
+    pos2 = list(pos_draw_dealer_card)
+    card_loc2 = CARD_BACK_CENTER
+    canvas.draw_image(card_back, card_loc2, CARD_BACK_SIZE, [
+        pos2[0] + CARD_BACK_CENTER[0], pos2[1] + CARD_BACK_CENTER[1]], CARD_BACK_SIZE)
+
+    # draw dealer_card
+    pos2[0] += CARD_SIZE[0] + 20
+    for dealer_card in DEALER_HAND.card_list:
+        dealer_card.draw(canvas, pos2)
+        pos2[0] += CARD_SIZE[0] + 20
+
+    # c1 = Card("S", "3")
+    # c1.draw(canvas, pos_draw_player_card)
 
 
 # initialization frame
