@@ -131,7 +131,6 @@ def deal():
     global outcome, in_play
     global DEALER_HAND, PLAYER_HAND, DECK
     outcome = "hit or stand ?"
-    score = 0
     DEALER_HAND = Hand()
     PLAYER_HAND = Hand()
     DECK = Deck()
@@ -149,12 +148,13 @@ def hit():
     global outcome, in_play, score
     global DEALER_HAND, PLAYER_HAND, DECK
     if in_play:
-        if PLAYER_HAND.get_value() <= 21:
-            PLAYER_HAND.add_card(DECK.deal_card())
-        if PLAYER_HAND.get_value() >= 21:
+        PLAYER_HAND.add_card(DECK.deal_card())
+        if PLAYER_HAND.get_value() > 21:
             outcome = "You have busted"
             score -= 1
             in_play = False
+        if PLAYER_HAND.get_value() == 21:
+            stand()
     # if the hand is in play, hit the player
 
     # if busted, assign a message to outcome, update in_play and score
@@ -181,6 +181,7 @@ def stand():
                 outcome = "dealer win"
                 score -= 1
                 in_play = False
+
     # if hand is in play, repeatedly hit dealer until his hand has value 17 or more
 
     # assign a message to outcome, update in_play and score
