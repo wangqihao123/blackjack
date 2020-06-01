@@ -93,9 +93,9 @@ class Hand:
 
     def draw(self, canvas, pos):
         hand_card_pos = list(pos)
-        for card in card_list:
+        for card in self.card_list:
             card.draw(canvas, hand_card_pos)
-            hand_card_pos[0] += CARD_SIZE[0]
+            hand_card_pos[0] += CARD_SIZE[0] + 20
         pass  # draw a hand on the canvas, use the draw method for cards
 
 
@@ -165,7 +165,7 @@ def stand():
     global outcome, in_play, score
     global DEALER_HAND, PLAYER_HAND, DECK
     if in_play:
-        while DEALER_HAND.get_value() < 17 and PLAYER_HAND.get_value() >= DEALER_HAND.get_value():
+        while DEALER_HAND.get_value() < 17 and DEALER_HAND.get_value() < PLAYER_HAND.get_value():
             DEALER_HAND.add_card(DECK.deal_card())
 
         if DEALER_HAND.get_value() > 21:
@@ -192,7 +192,7 @@ def draw(canvas):
     # test to make sure that card.draw works, replace with your code below
     # draw zone promp
     global pos_draw_player_card, pos_draw_dealer_card
-    canvas.draw_text(str(score), (500, 100), 50, "white")
+    canvas.draw_text("score: " + str(score), (400, 100), 40, "white")
     canvas.draw_text("Blackjack!!", [pos_draw_dealer_card[0],
                                      pos_draw_dealer_card[1] - 100], 50, "yellow")
     canvas.draw_text("Dealer's hand", [pos_draw_dealer_card[0],
@@ -204,10 +204,7 @@ def draw(canvas):
                                pos_draw_player_card[1] - 20], 30, "white")
 
     # draw player_card
-    pos1 = list(pos_draw_player_card)
-    for player_card in PLAYER_HAND.card_list:
-        player_card.draw(canvas, pos1)
-        pos1[0] += CARD_SIZE[0] + 20
+    PLAYER_HAND.draw(canvas, pos_draw_player_card)
 
     # draw back of card
     pos2 = list(pos_draw_dealer_card)
@@ -217,9 +214,7 @@ def draw(canvas):
 
     # draw dealer_card
     pos2[0] += CARD_SIZE[0] + 20
-    for dealer_card in DEALER_HAND.card_list:
-        dealer_card.draw(canvas, pos2)
-        pos2[0] += CARD_SIZE[0] + 20
+    DEALER_HAND.draw(canvas, pos2)
 
     # c1 = Card("S", "3")
     # c1.draw(canvas, pos_draw_player_card)
